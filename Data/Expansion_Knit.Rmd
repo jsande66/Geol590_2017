@@ -20,11 +20,19 @@ library(ggplot2)
 # Make a scatter plot of area per condition
 expansion_area <- ggplot(Expansion_dat, aes(x=Condition, y=Area)) + geom_point() + geom_smooth(method=lm, se=FALSE)
 print(expansion_area)
+```
 
+Figure 1. Area of nuclei after expansion/contraction and mFish.
+
+
+```{r}
 # Make a scatter plot of perimeter per condition
 expansion_per <- ggplot(Expansion_dat, aes(x=Condition, y=Perimeter)) + geom_point() + geom_smooth(method=lm, se=FALSE)
 print(expansion_per)
 ```
+
+Figure 2. Perimeter of nuclei after expansion/contraction and mFish.
+
 
 #Results/Discussion
 The very limited results show that the area and perimeter of EDTA treated nuclei are much higher than normal (HBSS) and return. The Mg treatment had a higher area than HBSS. This is a bit surprising because Mg should cause the nuclei to shrink. This suggests that the mFish technique may not maintain the original size of samples. 
