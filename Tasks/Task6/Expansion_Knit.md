@@ -17,13 +17,17 @@ print(expansion_area)
 
 ![](Expansion_Knit_files/figure-markdown_github/unnamed-chunk-1-1.png)
 
+Figure 1. Area of nuclei after expansion/contraction and mFish.
+
 ``` r
 # Make a scatter plot of perimeter per condition
 expansion_per <- ggplot(Expansion_dat, aes(x=Condition, y=Perimeter)) + geom_point() + geom_smooth(method=lm, se=FALSE)
 print(expansion_per)
 ```
 
-![](Expansion_Knit_files/figure-markdown_github/unnamed-chunk-1-2.png)
+![](Expansion_Knit_files/figure-markdown_github/unnamed-chunk-2-1.png)
+
+Figure 2. Perimeter of nuclei after expansion/contraction and mFish.
 
 Results/Discussion
 ==================
