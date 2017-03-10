@@ -1,0 +1,163 @@
+library(dplyr)
+library(tidyverse)
+library(nycflights13)
+
+# Makes a data frame table with nycflights weather
+nyc.weather <- nycflights13::weather
+
+# Determine outliers that are contained in the data visually
+nycwind_plot <- ggplot(nyc.weather, aes(x=time_hour, y=wind_speed)) + geom_point()
+print(nycwind_plot)                       
+
+# Filter out the outliers that are artifacts from data collection
+windspeed_filtered <- filter(nycflights13::weather, wind_speed < 200)
+
+### Find direction with the highest median speed at each airport 
+
+# Creates a dataframe that groups each airport by their wind speed
+windspeed_dplyr <- nyc.weather %>%
+  group_by(wind_speed) %>%
+  filter(wind_speed < 200) %>%
+  print(windspeed_dplyr)
+
+# Creates a dataframe that contains each airport and their median speed for each direction
+med_windspeed = windspeed_dplyr %>%
+  group_by(wind_dir, origin) %>%
+  summarise(wind_spd_med = median(wind_speed)) %>%
+  group_by(origin) %>%
+  filter(wind_spd_med == max(wind_spd_med))
+
+##### Makes tables and plots of median wind speed by direction, for each airport.
+## Respective plots show the importance in choosing the right type of plot to covey your data.
+
+
+EWR = med_windspeed %>%
+  filter(origin == 'EWR')
+
+ggplot(EWR, aes(wind_spd_med, wind_dir)) +
+  geom_point() +
+  xlab('Wind Speed') +
+  ylab('Wind Direction')
+
+JFK = med_windspeed %>%
+  filter(origin == "JFK")
+
+ggplot(JFK, aes(wind_spd_med, wind_dir)) +
+  geom_line() +
+  xlab('Wind Speed') +
+  ylab('Wind Direction')
+
+LGA = med_windspeed %>%
+  filter(origin == "LGA")
+
+ggplot(JFK, aes(wind_spd_med, wind_dir)) +
+  geom_boxplot() +
+  xlab('Wind Speed') +
+  ylab('Wind Direction')
+
+# Makes a table that joins flights and airlines
+nyc_flights_air <- inner_join(nycflights13::flights, airlines)
+
+# Filters the nyc_flights_air table to include only the airline and mean distance ranked from highest to lowest
+JFK_med_dist = nyc_flights_air %>%
+  filter(origin == "JFK") %>%
+  group_by(name) %>%
+  summarise(med_dist_JFK = median(distance)) %>%
+  arrange(desc(med_dist_JFK))
+
+# Creates a wide format data frame that contains the number of flights that leave EWR each month
+wide.frame <- nyc_flights_air %>%
+  group_by(month, name) %>%
+  summarise(month.airline = length(month)) %>%
+  spread(name, month.airline)
+
+library(babynames)
+
+# Creates a table that contains baby names dataset
+baby_names <- babynames::babynames
+ 
+# Filters out top 10 names in 2014
+## Jacob is number 4!
+topnames = baby_names %>%
+  filter(year == 2014) %>%
+  group_by(sex) %>%
+  top_n(10,n) %>%
+  select(year, sex, name)
+
+# Filters out the top 10 girl names in 2014
+topgirl = baby_names %>%
+  filter(year == 2014) %>%
+  filter(sex == 'F') %>%
+  top_n(10,n)
+
+# Filters out the top 10 boy names in 2014 
+topboy = baby_names %>%
+  filter(year == 2014) %>%
+  filter(sex == 'M') %>%
+  top_n(10,n)
+
+# Creates a table of the top names for girls between 1880 to 2014 by their frequency
+name_girl <- baby_names %>%
+  filter(sex == 'F') %>%
+  filter(name %in% topgirl$name) %>%
+  select(year,sex,name,prop) %>%
+  group_by(name)
+
+# Creates a table of the top names for girls between 1880 to 2014 by their frequency
+name_boy <- baby_names %>%
+  filter(sex == 'M') %>%
+  filter(name %in% topboy$name) %>%
+  select(year,sex,name,prop) %>%
+  group_by(name)
+
+# Plot that show frequency of girl names since 1880
+ggplot(name_girl, aes(year, prop, color = name))+
+  geom_line()
+
+# Generates a line plot that shows frequency of boy names since 1880
+ggplot(name_boy, aes(year, prop, color = name))+
+  geom_line()
+
+# Creates a table of common female names in 1896
+common_1896 <- baby_names %>%
+  select(year, sex, name, n) %>%
+  filter(sex == 'F') %>%
+  filter(year == 1896)
+
+# Creates a table of common female names in 1942
+common_1942 <- baby_names %>%
+  select(year, sex, name, n) %>%
+  filter(sex == 'F') %>%
+  filter(year == 1942)
+
+# Creates a table of common female names in 2014
+common_2014 <- baby_names %>%
+  select(year, sex, name, n) %>%
+  filter(sex == 'F') %>%
+  filter(year == 2014)
+
+# Joins common names for females in 1896, 1942, and 2014
+common_names_join = full_join(common_1896, common_1942)
+common_names = full_join(common_names_join, common_2014)
+
+# Generates a table with the most 26th through 29th most common names amongst girls in 1896, 1942, and 2014 
+age26_29 = common_names %>%
+  group_by(year) %>%
+  top_n(29,n) %>%
+  top_n(-4,n)
+print(age26_29)
+
+#### Write task that involves some of the functions on the Data Wrangling Cheat Sheet and execute it. 
+## Determine how the frequency of girls to be named Tyler, which is my middle name, from 1880 to 2014.
+
+# Creates a table of the frequency of girls named Tyler from 1880 to 2014
+girl_Tyler = baby_names %>%
+  filter(name == 'Tyler') %>%
+  filter(sex == 'F')
+
+# Generates a plot that visually shows the frequency of girls named Tyler
+ggplot(girl_Tyler, aes(year, n)) +
+  geom_line(stat = "identity") +
+  xlab("year") +
+  ylab("number of girls")
+
